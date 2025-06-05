@@ -71,7 +71,24 @@ public class Shop {
      * @return finished order
      */
     public Optional<Order> repair() {
-        throw new UnsupportedOperationException();
+        Order order = pendingOrders.poll();
+        if (order == null) {
+            return Optional.empty();
+        }
+        // "Reparatur" - wir fügen den Auftrag den fertigen hinzu
+        completedOrders.add(order);
+
+        // Loggen: pendingOrders verändert (Entfernung)
+        logger.logp(Level.INFO, "repair", this.getClass().getName(),
+            String.format("Order: %s, Kunde: %s, Struktur: pendingOrders",
+                order.bicycleType(), order.customer()));
+
+        // Loggen: completedOrders verändert (Hinzufügen)
+        logger.logp(Level.INFO, "repair", this.getClass().getName(),
+            String.format("Order: %s, Kunde: %s, Struktur: completedOrders",
+                order.bicycleType(), order.customer()));
+
+        return Optional.of(order);
     }
 
     /**
