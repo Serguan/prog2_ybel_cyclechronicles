@@ -7,24 +7,45 @@ public class Shop {
     private final Queue<Order> pendingOrders = new LinkedList<>();
     private final Set<Order> completedOrders = new HashSet<>();
 
-    /**
-     * Accept a repair order.
-     *
-     * <p>The order will only be accepted if all conditions are met:
-     *
-     * <ul>
-     *   <li>Gravel bikes cannot be repaired in this shop.
-     *   <li>E-bikes cannot be repaired in this shop.
-     *   <li>There can be no more than one pending order per customer.
-     *   <li>There can be no more than five pending orders at any time.
-     * </ul>
-     *
-     * <p>Implementation note: Accepted orders are added to the end of {@code pendingOrders}.
-     *
-     * @param o order to be accepted
-     * @return {@code true} if all conditions are met and the order has been accepted, {@code false}
-     *     otherwise
-     */
+    static final Logger logger = Logger.getLogger(Shop.class.getName());
+    private static FileHandler fileHandler;
+
+    static {
+        try {
+            // FileHandler anlegen, CSV-Datei mit Append = true
+            fileHandler = new FileHandler("shop_log.csv", true);
+            fileHandler.setFormatter(new CsvFormatter());
+            logger.addHandler(fileHandler);
+            logger.setUseParentHandlers(false); // Keine Konsolenausgabe
+            logger.setLevel(Level.ALL);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Eigener CSV-Formatter für Logeinträge
+    private static class CsvFormatter extends Formatter {
+        @Override
+        public String format(LogRecord record) {
+            // Format: Level, Methode, Klasse, Nachricht
+            String level = record.getLevel().toString();
+            String method = record.getSourceMethodName();
+            String clazz = record.getSourceClassName();
+            String message = record.getMessage();
+
+            // CSV: alle Felder in Anführungszeichen, getrennt durch Semikolon
+            return String.format("\"%s\";\"%s\";\"%s\";\"%s\"%n", level, method, clazz, message);
+        }
+    }
+
+    // Hilfsmethode fürs Logging der Order und Datenstruktur
+    private void logOrderChange(String methodName, Order order, String dataStructure) {
+        String msg = String.format("Order: %s, Kunde: %s, Struktur: %s",
+            order.bicycleType(), order.customer(), dataStructure);
+        logger.log(Level.INFO, msg, new Object[]{}); // SourceMethodName und ClassName setzen wir manuell in LogRecord nicht – deshalb übergeben wir methodName anders:
+    }
+
+
     public boolean accept(Order o) {
         if (o.getBicycleType() == Type.GRAVEL) return false;
         if (o.getBicycleType() == Type.EBIKE) return false;
