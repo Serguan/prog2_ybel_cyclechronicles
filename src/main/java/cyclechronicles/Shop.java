@@ -101,6 +101,20 @@ public class Shop {
      * @return any finished order for given customer, {@code Optional.empty()} if none found
      */
     public Optional<Order> deliver(String c) {
-        throw new UnsupportedOperationException();
+        Optional<Order> opt = completedOrders.stream()
+            .filter(o -> o.customer().equals(c))
+            .findAny();
+        if (opt.isPresent()) {
+            Order order = opt.get();
+            completedOrders.remove(order);
+
+            // Loggen: completedOrders verändert (Entfernung)
+            logger.logp(Level.INFO, "deliver", this.getClass().getName(),
+                String.format("Order: %s, Kunde: %s, Struktur: completedOrders",
+                    order.bicycleType(), order.customer()));
+
+            return Optional.of(order);
+        }
+        return Optional.empty();
     }
 }
