@@ -10,6 +10,8 @@ public enum Type {
     FIXIE,
     /** Gravel bike - wants to be everything, can't do anything right. */
     GRAVEL,
+    ROAD,
+    MOUNTAIN,
     /** E-bike - no comment. */
     EBIKE
 }
