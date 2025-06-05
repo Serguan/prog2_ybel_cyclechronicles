@@ -53,7 +53,13 @@ public class Shop {
             return false;
         if (pendingOrders.size() > 4) return false;
 
-        return pendingOrders.add(o);
+        boolean added = pendingOrders.add(o);
+        if (added) {
+            logger.logp(Level.INFO, "accept", this.getClass().getName(),
+                String.format("Order: %s, Kunde: %s, Struktur: pendingOrders",
+                    o.bicycleType(), o.customer()));
+        }
+        return added;
     }
 
     /**
